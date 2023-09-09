@@ -1,5 +1,6 @@
-const app = require("./app");
-const connectDatabase = require("./db/Database");
+import app from "./app.js";
+import connectDatabase from "./db/Database.js";
+import dotenv from "dotenv";
 
 // handling uncaught exception
 process.on("uncaughtException", (err) => {
@@ -9,9 +10,7 @@ process.on("uncaughtException", (err) => {
 
 // config
 if (process.env.NODE_ENV !== "PRODUCTION") {
-  require("dotenv").config({
-    path: "backend/config/config.env",
-  });
+  dotenv.config();
 }
 
 const PORT = process.env.PORT || 8080;
