@@ -23,8 +23,6 @@ router.post("/create-user", upload.single("file"), async (req, res, next) => {
             if (err) {
                 console.log(err);
                 res.status(500).json({message: "Error deleting file"});
-            } else {
-                res.json({message: "File Deleted Successfully"});
             }
         })
         return next(new ErrorHandler("User already exists", 400));
@@ -80,16 +78,49 @@ router.post("/activation", catchAsyncErrors(async (req, res, nect) => {
 
         const {name, email, password, avatar} = newUser;
 
-        User.create(({
+        let user = await User.findOne({email});
+
+        if (user) {
+            return next(new ErrorHandler("User already exists", 400));
+        }
+
+        user = await User.create(({
             name,
             email,
             password,
             avatar,
         }));
 
-        sendToken(newUser, 201, res);
+        sendToken(user, 201, res);
+    } catch (error) {
+        return next(new ErrorHandler(error.message, 500));
+    }
+}));
+
+// Login User
+router.post("/login-user", catchAsyncErrors(async (req, res, next) => {
+    try {
+        const {email, password} = req.body;
+
+        if (!email || !password) {
+            return next(new ErrorHandler("Please provide the all fields", 400));
+        }
+
+        const user = await User.findOne({email}).select("+password");
+
+        if (!user) {
+            return next(new ErrorHandler("User doesn't exists", 400));
+        }
+
+        const isPasswordValid = await user.comparePassword(password);
+
+        if (!isPasswordValid) {
+            return next(new ErrorHandler("Please provide correct information", 400));
+        }
+
+        sendToken(user, 201, res);
     } catch (error) {
         
     }
-}))
+}));
 export default router;

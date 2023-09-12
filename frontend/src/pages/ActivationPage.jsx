@@ -11,7 +11,7 @@ const ActivationPage = () => {
         if (activation_token) {
             const activationEmail = async () => {
                 try {
-                    const res = await axios.post(`${server}/activation`, {
+                    const res = await axios.post(`${server}/user/activation`, {
                         activation_token,
                     });
                     console.log(res.data.message);
@@ -20,7 +20,7 @@ const ActivationPage = () => {
                     setError(true);
                 }
             }
-            activationEmail()
+            activationEmail();
         }
     }, [activation_token]);
 
